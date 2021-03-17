@@ -23,13 +23,12 @@ class MyLocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
         print("initialised a LocationManager")
     }
     
-    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+    func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon], satisfying beaconConstraint: CLBeaconIdentityConstraint) {
         print(beacons)
         if beacons .isEmpty {
             
         } else {
             self.beacons.append(beacons[0])
-            print(self.beacons.count)
         }
     }
     
@@ -44,6 +43,7 @@ class MyLocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
 
 struct ContentView: View {
     @ObservedObject var sot = MyLocationManager()
+    @State var scanning = false
     var body: some View {
         NavigationView {
             VStack{
@@ -56,32 +56,26 @@ struct ContentView: View {
                 Spacer()
                 
                 Button(action: {
-                    self.sot.rangeBeacons()
+                    self.scanning ? self.sot.stopRangeBeacons() : self.sot.rangeBeacons()
+                    self.scanning.toggle()
                 }){
-                    Text("Start Range Beacons")
+                    self.scanning ? Text("Stop Range Beacons") : Text("Start Range Beacons")
                         .fontWeight(.bold)
                 }
                 .frame(width: UIScreen.main.bounds.size.width - 100, height: 50)
-                .background(Color.green)
+                .background(self.scanning ? Color.orange : Color.green)
                 .foregroundColor(Color.white)
                 .cornerRadius(10)
-                
-                Spacer().frame(height: 10)
-                
-                Button(action: {
-                    self.sot.stopRangeBeacons()
-                }){
-                    Text("Stop Range Beacons")
-                        .fontWeight(.bold)
-                }
-                .frame(width: UIScreen.main.bounds.size.width - 100, height: 50)
-                .background(Color.blue)
-                .foregroundColor(Color.white)
-                .cornerRadius(10)
-                
+            
                 Spacer().frame(height: 10)
             }
-        .navigationBarTitle(Text("iBeacon Scanner"))
+            .navigationBarTitle(Text("iBeacon Scanner"), displayMode: .inline)
+            .navigationBarItems(trailing: Button(action: {
+                self.sot.stopRangeBeacons()
+                self.sot.beacons.removeAll()
+            }){
+                Text("Clear")
+            })
         }
     }
 }
