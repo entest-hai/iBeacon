@@ -12,9 +12,7 @@ import CoreLocation
 class MyLocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     @Published var beacons = [CLBeacon]()
     let locationManager = CLLocationManager()
-    let region = CLBeaconRegion(proximityUUID: UUID(uuidString: "DD880E2B-DC11-4D4B-9B50-96DB60B2C151")!,
-                                identifier: "com.mycompany.myregion")
-    
+    let constraint = CLBeaconIdentityConstraint(uuid: UUID(uuidString: "DD880E2B-DC11-4D4B-9B50-96DB60B2C151")!)
     override init() {
         super.init()
         locationManager.delegate = self
@@ -36,11 +34,11 @@ class MyLocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func rangeBeacons(){
-        locationManager.startRangingBeacons(in: region)
+        locationManager.startRangingBeacons(satisfying: constraint)
     }
     
     func stopRangeBeacons(){
-        locationManager.stopRangingBeacons(in: region)
+        locationManager.stopRangingBeacons(satisfying: constraint)
     }
 }
 
